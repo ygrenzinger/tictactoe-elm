@@ -1,12 +1,16 @@
 module TicTacToeTest exposing (..)
 
-import Array exposing (Array)
 import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, map, string)
+import Fuzz exposing (Fuzzer, map)
 import Random.List exposing (shuffle)
 import Shrink exposing (noShrink)
 import Test exposing (..)
 import TicTacToe exposing (Board, Game, GameState(..), selectCell, showGame, startGame, stringToGame)
+
+
+initGameAndSelectCell : String -> Int -> String
+initGameAndSelectCell init pos =
+    stringToGame init |> selectCell pos |> showGame
 
 
 runGame : List Int -> Game
@@ -32,17 +36,17 @@ suite =
         , test "Should current player select a cell and switch player" <|
             \_ -> Expect.equal "Running - Player O - _X_______" (startGame |> selectCell 1 |> showGame)
         , test "Should make play Cross" <|
-            \_ -> Expect.equal "Running - Player X - _XO______" (stringToGame "_X_______" |> selectCell 2 |> showGame)
+            \_ -> Expect.equal "Running - Player X - _XO______" (initGameAndSelectCell "_X_______" 2)
         , test "Should not change a select cell" <|
-            \_ -> Expect.equal "Running - Player X - _XO______" (stringToGame "_XO______" |> selectCell 2 |> showGame)
+            \_ -> Expect.equal "Running - Player X - _XO______" (initGameAndSelectCell "_XO______" 2)
         , test "Should make player Cross with row" <|
-            \_ -> Expect.equal "X won - Player X - XXXOO____" (stringToGame "XX_OO____" |> selectCell 2 |> showGame)
+            \_ -> Expect.equal "X won - Player X - XXXOO____" (initGameAndSelectCell "XX_OO____" 2)
         , test "Should make player Cross with column" <|
-            \_ -> Expect.equal "X won - Player X - X_OXO_X__" (stringToGame "X_OXO____" |> selectCell 6 |> showGame)
+            \_ -> Expect.equal "X won - Player X - X_OXO_X__" (initGameAndSelectCell "X_OXO____" 6)
         , test "Should make player Circle win" <|
-            \_ -> Expect.equal "O won - Player O - OXXXO___O" (stringToGame "OXXXO____" |> selectCell 8 |> showGame)
+            \_ -> Expect.equal "O won - Player O - OXXXO___O" (initGameAndSelectCell "OXXXO____" 8)
         , test "Should end with a draw if there is no winner and the board is full" <|
-            \_ -> Expect.equal "Draw - Player X - XOXXOOOXX" (stringToGame "XOXXOOOX_" |> selectCell 8 |> showGame)
+            \_ -> Expect.equal "Draw - Player X - XOXXOOOXX" (initGameAndSelectCell "XOXXOOOX_" 8)
         , fuzz fuzzGame "End state" <|
             \game ->
                 let
